@@ -46,7 +46,7 @@ app.use(cors({
         }
     },
     credentials: true,    
-    methods: ['GET', 'POST', 'OPTIONS'],  // Cho phép phương thức OPTIONS (preflight)
+    methods: ['GET', 'POST', 'OPTIONS', 'PUT', 'DELETE'],  // Cho phép phương thức OPTIONS (preflight)
     allowedHeaders: ['Content-Type', 'Authorization', 'upload-type'],
 }));
 app.options('*', cors()); // Enable preflight requests for all routes
