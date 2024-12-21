@@ -34,6 +34,7 @@ const allowedOrigins = [
     'https://bandodientu-kt-trangchu.vercel.app',
     'https://admin-dodientu.dokhactu.site',
     'https://shopbandodientu.dokhactu.site',
+    'https://backend-bandodientu-node.dokhactu.site'
 ];
 
 app.use(cors({
