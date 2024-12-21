@@ -4,6 +4,7 @@ const xlsx = require('xlsx');
 const fs = require('fs');
 const LoaiSP = require('../../model/LoaiSP');
 const HangSX = require('../../model/HangSX');
+const { log } = require('console');
 require('dotenv').config();
 
 module.exports = {
@@ -533,6 +534,30 @@ module.exports = {
                 message: "Có lỗi xảy ra.",
                 error: error.message,
             });
+        }
+    },
+
+    deleteNhieuProduct: async (req, res) => {
+        // const { ids } = req.body; // ids là mảng chứa các _id của các sản phẩm cần xóa
+        const ids = req.query.ids ? req.query.ids.split(',') : []; // Lấy mảng ids từ query string
+        console.log("ids: ", ids);
+        
+        if (!Array.isArray(ids) || ids.length === 0) {
+            return res.status(400).json({ message: 'Vui lòng cung cấp mảng _id hợp lệ' });
+        }
+
+        try {
+            // Xóa các sản phẩm với các _id trong mảng ids
+            const result = await SanPham.deleteMany({ _id: { $in: ids } });
+
+            if (result.deletedCount === 0) {
+                return res.status(404).json({ message: 'Không tìm thấy sản phẩm nào để xóa' });
+            }
+
+            res.status(200).json({ message: `${result.deletedCount} sản phẩm đã được xóa thành công` });
+        } catch (error) {
+            console.error('Error deleting products:', error);
+            res.status(500).json({ message: 'Đã xảy ra lỗi khi xóa sản phẩm' });
         }
     },
 }

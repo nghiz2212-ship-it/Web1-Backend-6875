@@ -1,7 +1,7 @@
 const express = require("express");
 // import { createProduct, deleteProduct, getDetailSP, getProducts, getProductToCategoryNoiBat, getProductToCategorySPLienQuan, importProductsFromExcel, updateProduct } from '../controllers/Product/product.controller';
 // import { uploadExcel, uploadExcelFile } from '../controllers/Upload/upload.controller';
-const { createProduct, deleteProduct, getDetailSP, getProducts, getProductToCategoryNoiBat, getProductToCategorySPLienQuan, importProductsFromExcel, updateProduct } = require('../controllers/Product/product.controller');
+const { createProduct, deleteProduct, getDetailSP, getProducts, getProductToCategoryNoiBat, getProductToCategorySPLienQuan, importProductsFromExcel, updateProduct, deleteNhieuProduct } = require('../controllers/Product/product.controller');
 const { uploadExcel, uploadExcelFile } = require('../controllers/Upload/upload.controller');
 
 const router = express.Router();
@@ -17,6 +17,8 @@ router.put("/update-product", updateProduct );
 
 // delete product
 router.delete("/delete-product/:id", deleteProduct );
+
+router.delete("/delete-nhieu-product", deleteNhieuProduct );
 
 // Route import sản phẩm từ file Excel
 // router.post('/import-products', uploadExcel.single('file'), importProductsFromExcel);
