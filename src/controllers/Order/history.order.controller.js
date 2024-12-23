@@ -223,7 +223,7 @@ module.exports = {
         try {
             let {TinhTrangDonHang, TinhTrangThanhToan, _id} = req.body
 
-            let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan})
+            // let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan})
 
             // Hàm định dạng tiền tệ VND
             const formatCurrency = (amount) => {
@@ -345,29 +345,30 @@ module.exports = {
                     });
                 });
             };
-            
-            if(update) {
-                // Kiểm tra trạng thái đơn hàng: nếu đã giao hàng và chưa thanh toán thì không gửi email
-                if (findOrder.TinhTrangDonHang === 'Đã giao hàng' && findOrder.TinhTrangThanhToan === 'Chưa Thanh Toán') {
-                    // Không gửi email vì đơn hàng đã giao nhưng chưa thanh toán
-                    return res.status(400).json({
-                        data: null,
-                        message: "Không thể gửi email xác nhận cho đơn hàng đã giao nhưng chưa thanh toán."
-                    });
-                }
 
-                await sendOrderConfirmationEmail(findOrder.email);
-
-                return res.status(200).json({
-                    data: update,
-                    findOrder,
-                    message: "Cập nhật đơn hàng thành công!"
-                })
+            // Kiểm tra trạng thái đơn hàng: nếu đã giao hàng và chưa thanh toán thì không gửi email
+            if (TinhTrangDonHang === 'Đã giao hàng' && TinhTrangThanhToan === 'Chưa Thanh Toán') {
+                // Không gửi email vì đơn hàng đã giao nhưng chưa thanh toán
+                return res.status(400).json({                        
+                    message: "Không thể sửa đơn thành Đã giao hàng mà lại Chưa Thanh Toán"
+                });
             } else {
-                return res.status(500).json({
-                    message: "Cập nhật đơn hàng thất bại!"
-                })
-            }
+                let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan})            
+    
+                if(update) {                        
+                    await sendOrderConfirmationEmail(findOrder.email);
+    
+                    return res.status(200).json({
+                        data: update,
+                        findOrder,
+                        message: "Cập nhật đơn hàng thành công!"
+                    })
+                } else {
+                    return res.status(500).json({
+                        message: "Cập nhật đơn hàng thất bại!"
+                    })
+                }
+            }            
         } catch (error) {
             return res.status(500).json({
                 message: 'Đã xảy ra lỗi!',
