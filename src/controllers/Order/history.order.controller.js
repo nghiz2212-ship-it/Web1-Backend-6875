@@ -352,7 +352,7 @@ module.exports = {
                     // Không gửi email vì đơn hàng đã giao nhưng chưa thanh toán
                     return res.status(400).json({
                         data: null,
-                        message: "Lỗi đơn hàng? Không thể gửi email xác nhận cho đơn hàng đã giao nhưng chưa thanh toán."
+                        message: "Không thể gửi email xác nhận cho đơn hàng đã giao nhưng chưa thanh toán."
                     });
                 }
 
