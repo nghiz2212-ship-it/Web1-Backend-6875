@@ -347,7 +347,17 @@ module.exports = {
             };
             
             if(update) {
+                // Kiểm tra trạng thái đơn hàng: nếu đã giao hàng và chưa thanh toán thì không gửi email
+                if (findOrder.TinhTrangDonHang === 'Đã giao hàng' && findOrder.TinhTrangThanhToan === 'Chưa Thanh Toán') {
+                    // Không gửi email vì đơn hàng đã giao nhưng chưa thanh toán
+                    return res.status(400).json({
+                        data: null,
+                        message: "Lỗi đơn hàng? Không thể gửi email xác nhận cho đơn hàng đã giao nhưng chưa thanh toán."
+                    });
+                }
+
                 await sendOrderConfirmationEmail(findOrder.email);
+
                 return res.status(200).json({
                     data: update,
                     findOrder,
