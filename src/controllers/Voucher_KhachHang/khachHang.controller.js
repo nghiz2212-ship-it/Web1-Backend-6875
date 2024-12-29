@@ -1,5 +1,6 @@
 const mongoose = require('mongoose');  // Đảm bảo bạn đã import mongoose
 const AccKH = require('../../model/AccKH');
+const HopQua = require('../../model/HopQua');
 
 
 require('dotenv').config();
@@ -67,14 +68,14 @@ module.exports = {
   
     updateAccKH: async (req, res) => {
         try {
-            const { id, fullName, IdVoucher } = req.body;
+            const { id, fullName, IdVoucher, quayMayManCount } = req.body;
             console.log("id: ", id);
             console.log("fullname: ", fullName);
             console.log("IdVoucher: ", IdVoucher);                           
                 
             const updateResult = await AccKH.updateOne(
                 { _id: id }, // Điều kiện tìm kiếm tài liệu cần cập nhật
-                { IdVoucher, fullName }
+                { IdVoucher, fullName, quayMayManCount }
             );
 
             if(updateResult) {
@@ -171,6 +172,40 @@ module.exports = {
                 error: error.message,
             });
         }        
-    },    
+    },  
+    
+    quaySoMayMan: async (req, res) => {
+        try {
+            let { userId } = req.body;
+            console.log("userId: ", userId);
+            
+            // Lấy thông tin khách hàng
+            const user = await AccKH.findById(userId);
+    
+            // Kiểm tra xem người dùng có còn lượt quay không
+            if (user.quayMayManCount <= 0) {
+                return res.status(500).json({
+                    message: "Bạn đã hết lượt quay số may mắn.",
+                    errCode: -1,
+                })
+            }
+    
+            // Giảm số lần quay đi 1
+            user.quayMayManCount -= 1;
+    
+            // Lưu lại thay đổi
+            await user.save();
+
+            return res.status(200).json({
+                message: "Quay số thành công!",
+                errCode: 0,
+                // prize,  // Trả về phần thưởng
+                quayMayManCount: user.quayMayManCount,
+            });
+                           
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    }
   
 }
