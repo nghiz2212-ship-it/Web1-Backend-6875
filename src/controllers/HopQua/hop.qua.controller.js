@@ -29,9 +29,9 @@ module.exports = {
                 query.$or = searchConditions;
             }           
                        
-            let hopQua = await HopQua.find(query).skip(skip).limit(limitNumber)           
+            let hopQua = await HopQua.find(query).populate('IdVoucher IdKH').skip(skip).limit(limitNumber)           
 
-            const totalHopQua = await hopQua.countDocuments(query); // Đếm tổng số chức vụ
+            const totalHopQua = await HopQua.countDocuments(query); // Đếm tổng số chức vụ
 
             const totalPages = Math.ceil(totalHopQua / limitNumber); // Tính số trang
 
