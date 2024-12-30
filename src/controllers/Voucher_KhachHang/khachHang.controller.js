@@ -177,7 +177,7 @@ module.exports = {
     quaySoMayMan: async (req, res) => {
         try {
             let { userId } = req.body;
-            console.log("userId: ", userId);
+            console.log("userId: ", userId);            
             
             // Lấy thông tin khách hàng
             const user = await AccKH.findById(userId);
@@ -206,6 +206,51 @@ module.exports = {
         } catch (error) {
             throw new Error(error.message);
         }
-    }
+    },
+
+    nhanThuong: async (req, res) => {
+        try {
+            let { userId, IdVoucher } = req.body;
+            console.log("userId: ", userId);
+            console.log("IdVoucher: ", IdVoucher);
+            const voucherId = new mongoose.Types.ObjectId(IdVoucher);
+
+            const user = await AccKH.findById(userId);
+
+            if (!user) {
+                return res.status(404).json({
+                    message: "Người dùng không tồn tại.",
+                    errCode: -1,
+                });
+            }
+    
+            // Kiểm tra nếu `IdVoucher` nằm trong danh sách `IdVoucher` của người dùng
+            const voucherExists = user.IdVoucher.some(
+                // (voucher) => voucher.toString() === IdVoucher
+                (voucher) => voucher.toString() === voucherId.toString()
+            );
+    
+            if (voucherExists) {
+                return res.status(200).json({
+                    message: "Voucher đã tồn tại trong tài khoản. Không thể nhận thêm.",
+                    errCode: -1,
+                });
+            } else {                
+                // user.IdVoucher.push(IdVoucher);
+                user.IdVoucher = [...user.IdVoucher, IdVoucher];
+
+                // Lưu lại thay đổi
+                await user.save();
+
+                return res.status(200).json({
+                    message: "Đã nhận phần thưởng!",
+                    errCode: 0,                    
+                });               
+            }                
+                           
+        } catch (error) {
+            throw new Error(error.message);
+        }
+    },
   
 }
