@@ -280,6 +280,9 @@ module.exports = {
                 "Chưa Thanh Toán": "#95a5a6",  // Màu xám
                 "Đã Thanh Toán": "#2ecc71",    // Màu xanh
             };
+
+            console.log("TinhTrangDonHang: ", TinhTrangDonHang);
+            console.log("TinhTrangThanhToan: ", TinhTrangThanhToan);
             
             // Sử dụng màu sắc cho trạng thái đơn hàng và thanh toán
             const orderStatusStyle = orderStatusColor[findOrder.TinhTrangDonHang] || "#95a5a6";  // Mặc định là màu xám nếu không tìm thấy
@@ -325,8 +328,8 @@ module.exports = {
                             <p><strong>Địa chỉ nhận hàng:</strong> <span style="color: #34495e; font-style: italic;">${findOrder.address}</span></p>
                             <br/>
                                                         
-                            <p><strong>Trạng thái đơn hàng:</strong> <span style="color: ${orderStatusStyle}; font-style: italic; font-weight: bold;">${findOrder.TinhTrangDonHang}</span></p>
-                            <p><strong>Trạng thái thanh toán:</strong> <span style="color: ${paymentStatusStyle}; font-style: italic; font-weight: bold;">${findOrder.TinhTrangThanhToan}</span></p>
+                            <p><strong>Trạng thái đơn hàng:</strong> <span style="color: ${orderStatusStyle}; font-style: italic; font-weight: bold;">${TinhTrangDonHang}</span></p>
+                            <p><strong>Trạng thái thanh toán:</strong> <span style="color: ${paymentStatusStyle}; font-style: italic; font-weight: bold;">${TinhTrangThanhToan}</span></p>
                                 
                             <p style="text-align: center; font-size: 16px;">Bạn có thể theo dõi đơn hàng tại <a href="https://shopbandodientu.dokhactu.site" style="color: #3498db; text-decoration: none;">WebShop Khắc Tú</a></p>
                         </div>
@@ -353,8 +356,8 @@ module.exports = {
                     message: "Không thể sửa đơn thành Đã giao hàng mà lại Chưa Thanh Toán"
                 });
             } else {
-                let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan})            
-    
+                let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan})                            
+                               
                 if(update) {                        
                     await sendOrderConfirmationEmail(findOrder.email);
     
