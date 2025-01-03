@@ -560,4 +560,41 @@ module.exports = {
             res.status(500).json({ message: 'Đã xảy ra lỗi khi xóa sản phẩm' });
         }
     },
+
+    timSPCanCheckSoLuongTon: async (req, res) => {
+        try {
+            const { dataDetailSP, quantity, customerId, selectedSize } = req.query;
+    
+            log("dataDetailSP: ", dataDetailSP);
+            // Tìm sản phẩm trong cơ sở dữ liệu dựa vào product ID
+            const product = await SanPham.findOne({ _id: dataDetailSP });
+    
+            // Nếu không tìm thấy sản phẩm, trả về lỗi
+            if (!product) {
+                return res.status(404).json({ message: 'Sản phẩm không tồn tại', status: 404, });
+            }
+    
+            // Tìm size sản phẩm trong mảng sizesSchema
+            const selectedProductSize = product.sizes.find(size => size.size === selectedSize);
+    
+            // Nếu không tìm thấy kích thước sản phẩm, trả về lỗi
+            if (!selectedProductSize) {
+                return res.status(400).json({ message: `Kích thước ${selectedSize} không có trong sản phẩm này`, status: 400, });
+            }
+    
+            // Kiểm tra số lượng sản phẩm trong size đã chọn
+            if (selectedProductSize.quantity < quantity) {
+                return res.status(400).json({
+                    message: `Cấu hình ${selectedSize} này không đủ số lượng trong kho. Sản phẩm này còn ${selectedProductSize.quantity} sản phẩm. Bạn không thể thêm sản phẩm này vào giỏ hàng!`, status: 400,
+                });
+            }
+
+            // Nếu đủ số lượng, trả về thành công
+            return res.status(200).json({status: 200, message: "Số lượng đủ, có thể thêm vào giỏ hàng" });
+                
+        } catch (error) {
+            console.error('Lỗi khi thêm sản phẩm vào giỏ:', error);
+            return res.status(500).json({ message: 'Đã xảy ra lỗi, vui lòng thử lại!' });
+        }
+    }
 }

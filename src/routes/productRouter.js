@@ -1,7 +1,7 @@
 const express = require("express");
 // import { createProduct, deleteProduct, getDetailSP, getProducts, getProductToCategoryNoiBat, getProductToCategorySPLienQuan, importProductsFromExcel, updateProduct } from '../controllers/Product/product.controller';
 // import { uploadExcel, uploadExcelFile } from '../controllers/Upload/upload.controller';
-const { createProduct, deleteProduct, getDetailSP, getProducts, getProductToCategoryNoiBat, getProductToCategorySPLienQuan, importProductsFromExcel, updateProduct, deleteNhieuProduct } = require('../controllers/Product/product.controller');
+const { createProduct, deleteProduct, getDetailSP, getProducts, getProductToCategoryNoiBat, getProductToCategorySPLienQuan, importProductsFromExcel, updateProduct, deleteNhieuProduct, timSPCanCheckSoLuongTon } = require('../controllers/Product/product.controller');
 const { uploadExcel, uploadExcelFile } = require('../controllers/Upload/upload.controller');
 
 const router = express.Router();
@@ -34,5 +34,8 @@ router.get("/get-product-idloaisp-noibat", getProductToCategoryNoiBat );
 router.get("/get-product-idloaisp-lien-quan", getProductToCategorySPLienQuan );
 
 router.get("/get-detail-product", getDetailSP );
+
+router.get("/get-detail-product-check", timSPCanCheckSoLuongTon );
+
 
 module.exports = router;
