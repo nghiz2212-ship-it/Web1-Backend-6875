@@ -91,45 +91,8 @@ routes.forEach(route => app.use(route.path, route.router));
 // Sử dụng uploadRouter
 app.use("/api/upload", uploadRouter); // Đặt đường dẫn cho upload
 
-// WebSocket setup
-const wss = new WebSocket.Server({ noServer: true }); // Khởi tạo WebSocket server
 
-let onlineUsers = 0;  // Biến lưu số người dùng online
-
-// // Lắng nghe kết nối WebSocket
-// wss.on('connection', (ws) => {
-//     const origin = request.headers.origin;
-//     if (origin !== 'http://localhost:3000') {  // Replace with your front-end domain
-//         ws.close();  // Close the connection if the origin is not allowed
-//         return;
-//     }
-
-//     onlineUsers++;  // Tăng số người dùng online
-//     console.log(`Người dùng kết nối. Tổng số người online: ${onlineUsers}`);
-
-//     // Gửi số lượng người online đến client
-//     ws.send(JSON.stringify({ onlineUsers }));
-
-//     // Khi kết nối bị ngắt
-//     ws.on('close', () => {
-//         onlineUsers--;  // Giảm số người dùng online
-//         console.log(`Người dùng ngắt kết nối. Tổng số người online: ${onlineUsers}`);
-//     });
-// });
-
-// // Tạo kết nối WebSocket với server HTTP
-// app.server.on('upgrade', (request, socket, head) => {
-//     wss.handleUpgrade(request, socket, head, (ws) => {
-//         wss.emit('connection', ws, request);
-//     });
-// });
-
-// // Kết nối WebSocket với HTTP server
-// app.server = app.listen(port, () => {
-//     console.log("Backend Node.js is running on the port:", port, `\n http://localhost:${port}`);
-// });
-
-// xóa các voucher đã hết hạn
+// xóa các voucher đã hết  -- sau 10s chạy 1 lần
 cron.schedule('*/10 * * * * *', async () => {
     try {
         const now = moment(); // Lấy thời gian hiện tại
