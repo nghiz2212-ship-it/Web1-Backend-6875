@@ -4,7 +4,7 @@ const CauHoi_Schema = new mongoose.Schema({
         fullName: { type: String },       
         email: { type: String },       
         cauHoi: { type: String },               
-        cauTraLoi: { type: String },               
+        cauTraLoi: { type: String, default: '' },               
     },
     { 
         timestamps: true,   // createAt, updateAt

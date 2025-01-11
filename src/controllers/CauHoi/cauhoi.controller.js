@@ -6,8 +6,10 @@ module.exports = {
 
     getCauHoi: async (req, res) => {
         try {
-            let { page, limit, search, sort, order } = req.query; 
+            let { page, limit, search, sort, order, locTheoCauHoiDaTraLoi } = req.query; 
 
+            console.log("locTheoCauHoiDaTraLoi: ", locTheoCauHoiDaTraLoi);
+            
             // Chuyển đổi thành số
             const pageNumber = parseInt(page, 10);
             const limitNumber = parseInt(limit, 10);           
@@ -22,19 +24,51 @@ module.exports = {
                 const keywordsArray = searchKeywords.trim().split(/\s+/);
 
                 const searchConditions = keywordsArray.map(keyword => ({
+                    fullName: { $regex: keyword, $options: 'i' } // Tìm kiếm không phân biệt chữ hoa chữ thường
+                }));
+
+                query.$or = searchConditions;
+            }
+            if (search) {
+                const searchKeywords = (search || '')
+                const keywordsArray = searchKeywords.trim().split(/\s+/);
+
+                const searchConditions = keywordsArray.map(keyword => ({
                     cauHoi: { $regex: keyword, $options: 'i' } // Tìm kiếm không phân biệt chữ hoa chữ thường
                 }));
 
                 query.$or = searchConditions;
             }
 
-            let sortOrder = 1; // tang dn
+            if (locTheoCauHoiDaTraLoi) {
+                const filterValues = Array.isArray(locTheoCauHoiDaTraLoi)
+                    ? locTheoCauHoiDaTraLoi
+                    : JSON.parse(locTheoCauHoiDaTraLoi); 
+            
+                const conditions = [];
+            
+                if (filterValues.includes("darep")) {
+                    // Lọc các câu hỏi đã trả lời
+                    conditions.push({ cauTraLoi: { $exists: true, $ne: "" } });     // không rỗng hoặc không null
+                }
+            
+                if (filterValues.includes("chuarep")) {
+                    // Lọc các câu hỏi chưa trả lời
+                    conditions.push({ cauTraLoi: { $exists: true, $eq: "" } });     //  rỗng hoặc  null
+                }
+            
+                if (conditions.length > 0) {
+                    query.$or = conditions; // Áp dụng điều kiện $or với các trường hợp
+                }
+            }
+
+            let sortOrder = 1; // tang dan
             if (order === 'desc') {
                 sortOrder = -1; 
             }
             console.log("sortOrder: ", sortOrder);                              
 
-            let cauHoi = await CauHoi.find(query).skip(skip).limit(limitNumber).sort({ [sort]: sortOrder })           
+            let cauHoi = await CauHoi.find(query).skip(skip).limit(limitNumber).sort({ updatedAt: -1 })   // hiển thị câu hỏi mới nhất    sort({ updatedAt: -1 })    
 
             const totalCauHoi = await CauHoi.countDocuments(query); // Đếm tổng số chức vụ
 
