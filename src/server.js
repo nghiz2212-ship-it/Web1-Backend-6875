@@ -11,6 +11,7 @@ const voucherRouter = require('./routes/voucherRouter');
 const orderRouter = require('./routes/orderRouter');
 const commentRouter = require('./routes/commentRouter');
 const hopQuaRouter = require('./routes/hopQuaRouter');
+const cauHoiRouter = require('./routes/cauHoiRouter');
 const connectDB = require('./config/connectDB');
 const cors = require('cors');
 const multer = require('multer');
@@ -77,6 +78,7 @@ const routes = [
     { path: '/api/order', router: orderRouter },
     { path: '/api/comment', router: commentRouter },
     { path: '/api/hopqua', router: hopQuaRouter },
+    { path: '/api/cauhoi', router: cauHoiRouter },
 ];
   
 routes.forEach(route => app.use(route.path, route.router));
