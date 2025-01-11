@@ -62,9 +62,9 @@ module.exports = {
 
     createVoucher: async (req, res) => {
         try {
-            let {code, dieuKien, giamGia} = req.body                       
+            let {code, dieuKien, giamGia, thoiGianHetHan} = req.body                       
 
-            let createTL = await Voucher.create({code, dieuKien, giamGia})
+            let createTL = await Voucher.create({code, dieuKien, giamGia, thoiGianHetHan})
 
             if(createTL){
                 return res.status(200).json({
@@ -90,9 +90,9 @@ module.exports = {
 
     updateVoucher: async (req, res) => {
         try {
-            let {_id, code, dieuKien, giamGia} = req.body
+            let {_id, code, dieuKien, giamGia, thoiGianHetHan} = req.body
 
-            let updateTL = await Voucher.updateOne({_id: _id},{code, dieuKien, giamGia})
+            let updateTL = await Voucher.updateOne({_id: _id},{code, dieuKien, giamGia, thoiGianHetHan})
 
             if(updateTL) {
                 return res.status(200).json({

@@ -18,6 +18,7 @@ const path = require('path');
 const cron = require('node-cron');
 const moment = require('moment');
 const WebSocket = require('ws'); // Thêm thư viện WebSocket
+const Voucher = require('./model/Voucher');
 
 require("dotenv").config();
 
@@ -128,6 +129,31 @@ let onlineUsers = 0;  // Biến lưu số người dùng online
 //     console.log("Backend Node.js is running on the port:", port, `\n http://localhost:${port}`);
 // });
 
+// xóa các voucher đã hết hạn
+cron.schedule('*/10 * * * * *', async () => {
+    try {
+        const now = moment(); // Lấy thời gian hiện tại
+        const expiredVouchers = await Voucher.find({
+            thoiGianHetHan: { 
+                $lt: now.format('DD-MM-YYYY') // So sánh với ngày hiện tại
+            }
+        });
+
+        if (expiredVouchers.length > 0) {
+            console.log(`Có ${expiredVouchers.length} phiếu giảm giá đã hết hạn. Đang xóa...`);
+            await Voucher.deleteMany({
+                thoiGianHetHan: { 
+                    $lt: now.format('DD-MM-YYYY') 
+                }
+            });
+            console.log("Phiếu giảm giá hết hạn đã được xóa thành công.");
+        } else {
+            console.log("Không tìm thấy chứng từ nào hết hạn.");
+        }
+    } catch (error) {
+        console.error("Lỗi khi xóa phiếu giảm giá đã hết hạn:", error);
+    }
+});
 
 app.get('/dokhactu', (req, res) => {
     setTimeout(function() {
