@@ -113,7 +113,7 @@ cron.schedule('*/10 * * * * *', async () => {
             });
             console.log("Phiếu giảm giá hết hạn đã được xóa thành công.");
         } else {
-            console.log("Không tìm thấy chứng từ nào hết hạn.");
+            console.log("Không tìm thấy Phiếu giảm giá nào hết hạn.");
         }
     } catch (error) {
         console.error("Lỗi khi xóa phiếu giảm giá đã hết hạn:", error);

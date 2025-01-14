@@ -2,6 +2,7 @@ const Order = require('../../model/Order');
 const Product = require('../../model/SanPham');  // Import model sản phẩm
 require('dotenv').config();
 const nodemailer = require('nodemailer');
+const moment = require('moment');
 const urlBackend = process.env.VITE_BACKEND_URL
 module.exports = {
 
@@ -413,6 +414,71 @@ module.exports = {
             res.json({ data: orders }); // Trả về dữ liệu doanh thu theo ngày
         } catch (error) {
             res.status(500).send("Error fetching sales data");
+        }
+    },
+
+    doanhThuTheoNgay: async (req, res) => {
+        try {
+            const { startDate, endDate } = req.body;            
+            console.log('Start Date:', startDate); 
+            console.log('End Date:', endDate);                 
+
+            const start = moment(startDate, "DD/MM/YYYY").startOf('day').toDate();
+            const end = moment(endDate, "DD/MM/YYYY").endOf('day').toDate();
+
+            console.log('start:', moment(start).format('YYYY/MM/DD HH:mm:ss'));  // Kiểm tra thời gian UTC
+            console.log('end:', moment(end).format('YYYY/MM/DD HH:mm:ss'));      // Kiểm tra thời gian UTC
+            
+            // Kiểm tra có dữ liệu trong khoảng ngày không
+            // const ordersInRange = await Order.find({ 
+            //     createdAt: { $gte: start, $lte: end },
+            //     TinhTrangDonHang: "Đã giao hàng",
+            //     TinhTrangThanhToan: "Đã Thanh Toán",
+            //     TrangThaiHuyDon: "Không Hủy"
+            // });
+            // if (ordersInRange.length === 0) {
+            //     console.log("Không có đơn hàng trong khoảng thời gian này");
+            //     return res.json({ message: "Không có đơn hàng trong khoảng thời gian này" });
+            // }
+
+            // console.log("Orders in range:", ordersInRange);
+        
+            const orders = await Order.aggregate([
+                {
+                    $match: {
+                        createdAt: { $gte: start, $lte: end },
+                        TinhTrangDonHang: "Đã giao hàng",
+                        TinhTrangThanhToan: "Đã Thanh Toán",
+                        TrangThaiHuyDon: "Không Hủy"
+                    }
+                },
+                {
+                    $project: {
+                        date: { $dateToString: { format: "%Y-%m-%d", date: "$createdAt" } }, // Lấy ngày từ createdAt
+                        // year: { $year: "$createdAt" },   // Lấy năm
+                        // month: { $month: "$createdAt" },  // Lấy tháng
+                        // day: { $dayOfMonth: "$createdAt" },  // Lấy ngày trong tháng
+                        totalSales: "$soTienCanThanhToan" // Tổng doanh thu
+                    }
+                },
+                {
+                    $group: {
+                        _id: "$date",  // Nhóm theo ngày
+                        // _id: { year: "$year", month: "$month", day: "$day" },  // Nhóm theo năm, tháng, ngày
+                        totalSales: { $sum: "$totalSales" },  // Tổng doanh thu của ngày
+                        totalOrders: { $sum: 1 }  // Tổng số đơn hàng thành công trong ngày
+                    }
+                },
+                {
+                    $sort: { "_id": 1 } // Sắp xếp theo ngày tăng dần
+                    // $sort: { "_id.year": 1, "_id.month": 1, "_id.day": 1 } // Sắp xếp theo ngày tăng dần
+                }
+            ]);
+    
+            res.json({ data: orders, startDate, endDate }); // Trả về dữ liệu doanh thu theo ngày
+        } catch (error) {
+            console.error(error);
+            res.status(500).send("Lỗi khi lấy dữ liệu doanh thu");
         }
     }
     
