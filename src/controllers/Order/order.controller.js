@@ -229,13 +229,31 @@ const createOrder = async (req, res) => {
         // Trả về thông tin đơn hàng đã tạo
         return res.status(201).json({
             message: 'Đặt hàng thành công!',
-            data: newOrder,            
+            data: newOrder,  
+            _idDH:  newOrder._id,
+            soTienCanThanhToan: newOrder.soTienCanThanhToan,    
         });
     } catch (error) {
         return res.status(500).json({
             message: 'Đã xảy ra lỗi khi tạo đơn hàng!',
             error: error.message,
         });
+    }
+};
+
+const findOrderById = async (req, res) => {
+    try {
+        const idDH = req.query.idDH;
+        const order = await Order.findOne({ _id: idDH }).exec();
+        if (!order) {
+            return { success: false, message: "Order not found!" };
+        }
+        return res.status(201).json({
+            data: order,  
+        });
+    } catch (error) {
+        console.error("Error finding order:", error);
+        return { success: false, message: "Internal server error" };
     }
 };
 
@@ -570,4 +588,4 @@ const updateCongTienKhiNap = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, createOrderThanhToanVNPay, updateCongTienKhiNap };
+module.exports = { createOrder, createOrderThanhToanVNPay, updateCongTienKhiNap, findOrderById };

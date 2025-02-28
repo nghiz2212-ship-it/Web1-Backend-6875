@@ -1,7 +1,7 @@
 const express = require("express");
 // import { createOrder } from '../controllers/Order/order.controller';
 // import { deleteHistoryOrder, doanhThu, handleHuyOrder, historyOrderAll, historyOrderByIdKH, updateOrder } from '../controllers/Order/history.order.controller';
-const { createOrder, createOrderThanhToanVNPay, updateCongTienKhiNap } = require('../controllers/Order/order.controller');
+const { createOrder, createOrderThanhToanVNPay, updateCongTienKhiNap, findOrderById } = require('../controllers/Order/order.controller');
 const { deleteHistoryOrder, doanhThu, handleHuyOrder, historyOrderAll, historyOrderByIdKH, updateOrder, doanhThuTheoNgay } = require('../controllers/Order/history.order.controller');
 const { IpnFailChecksum, VNPay, IpnOrderNotFound, IpnInvalidAmount, InpOrderAlreadyConfirmed, IpnSuccess, IpnUnknownError, ignoreLogger, VerifyReturnUrl } = require("vnpay");
 const Order = require("../model/Order");
@@ -37,6 +37,7 @@ router.post("/dat-hang-thanh-toan-vnpay", createOrderThanhToanVNPay );
 router.post("/dat-hang-thanh-toan-sepay", updateCongTienKhiNap );
 
 router.get("/find-all-order", historyOrderByIdKH)
+router.get("/find-one-order", findOrderById)
 
 router.get("/find-all-history-order", historyOrderAll)
 
