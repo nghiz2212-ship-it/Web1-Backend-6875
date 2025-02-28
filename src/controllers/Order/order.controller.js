@@ -469,6 +469,107 @@ const createOrderThanhToanVNPay = async (req, res) => {
     }
 };
 
+const updateCongTienKhiNap = async (req, res) => {
+    const session = await mongoose.startSession();
+
+    try {
+        await session.startTransaction();
+
+        const sePayWebhookData = {
+            id: parseInt(req.body.id),
+            gateway: req.body.gateway,
+            transactionDate: req.body.transactionDate,
+            accountNumber: req.body.accountNumber,
+            subAccount: req.body.subAccount,
+            code: req.body.code,
+            content: req.body.content,
+            transferType: req.body.transferType,
+            description: req.body.description,
+            transferAmount: parseFloat(req.body.transferAmount),
+            referenceCode: req.body.referenceCode,
+            accumulated: parseInt(req.body.accumulated),
+        };
+
+        // nếu SePayTransaction có hơn 1 giao dịch collection 
+        if (await SePayTransaction.countDocuments() > 0) {
+            const existingTransaction = await SePayTransaction.findOne({
+                _id: sePayWebhookData.id,
+            });
+            if (existingTransaction) {
+                return res.status(400).json({
+                    message: "transaction này đã thực hiện giao dịch",
+                });
+            }
+        }
+
+        // api chứng thực
+        const pattern = process.env.SEPAY_API_KEY;
+        const authorizationAPI = req.headers.authorization;
+        const apiKey = authorizationAPI.split(" ")[1];
+
+        // kiểm tra xác thực api
+        if (pattern === apiKey) {
+            // Tạo lịch sử giao dịch
+            const newTransaction = await SePayTransaction.create({
+                _id: sePayWebhookData.id,
+                gateway: sePayWebhookData.gateway,
+                transactionDate: sePayWebhookData.transactionDate,
+                accountNumber: sePayWebhookData.accountNumber,
+                subAccount: sePayWebhookData.subAccount,
+                code: sePayWebhookData.code,
+                content: sePayWebhookData.content,
+                transferType: sePayWebhookData.transferType,
+                description: sePayWebhookData.description,
+                transferAmount: sePayWebhookData.transferAmount,
+                referenceCode: sePayWebhookData.referenceCode,
+            });
+
+            // const matchContent = sePayWebhookData.content.match(/NAP([a-f0-9]{24})/);
+            const matchContent = sePayWebhookData.content.match(/NAP([a-zA-Z0-9]{6,24})/);
+            console.log("matchContent: ", matchContent);                
+            const idUser = matchContent[0].replace("NAP", "");
+            console.log("idUser: ", idUser);                
+            const updatedUser = await Order.findOneAndUpdate(
+                // { _id: idUser },
+                { _id: idUser },
+                {
+                    $set: { TinhTrangThanhToan: "Đã Thanh Toán" },
+                    $push: {
+                        transactionHistory: {
+                            date: new Date(),
+                            amount: sePayWebhookData.transferAmount,
+                            type: "deposit",
+                            reference: sePayWebhookData.id,
+                        },
+                    },
+                },
+                { new: true, session }
+            );
+
+            if (!updatedUser) {
+                return res
+                    .status(404)
+                    .json({ message: "User account not found" });
+            }
+            await session.commitTransaction();
+
+            return res.status(200).json({
+                success: true,
+                newBalance: updatedUser.soDu,
+                processedAt: new Date().toISOString(),
+                message: `Cập nhật số dư thành công`,
+            });
+        }
+        return res.status(400).json({ message: "Invalid transaction" });
+    } catch (error) {
+        await session.abortTransaction(); // Hủy giao dịch nếu có lỗi
+        console.error("Lỗi:", error);
+        return res.status(500).json({ message: error.message || "Internal Server Error" });
+    } finally {
+        session.endSession();
+    }
+};
+
 const createOrderThanhToanOnlineSePay = async (req, res) => {
     try {
         const { lastName, firstName, email, address, phone, note,
@@ -620,97 +721,6 @@ const createOrderThanhToanOnlineSePay = async (req, res) => {
         // Gửi email thông báo đặt hàng thành công
         await sendOrderConfirmationEmail(email);
 
-        // thanh toán online
-        const session = await mongoose.startSession();
-        await session.startTransaction();
-        const sePayWebhookData = {
-            id: parseInt(req.body.id),
-            gateway: req.body.gateway,
-            transactionDate: req.body.transactionDate,
-            accountNumber: req.body.accountNumber,
-            subAccount: req.body.subAccount,
-            code: req.body.code,
-            content: req.body.content,
-            transferType: req.body.transferType,
-            description: req.body.description,
-            transferAmount: parseFloat(req.body.transferAmount),
-            referenceCode: req.body.referenceCode,
-            accumulated: parseInt(req.body.accumulated),
-        };
-
-        // nếu SePayTransaction có hơn 1 giao dịch collection 
-        if (await SePayTransaction.countDocuments() > 0) {
-            const existingTransaction = await SePayTransaction.findOne({
-                _id: sePayWebhookData.id,
-            });
-            if (existingTransaction) {
-                return res.status(400).json({
-                    message: "transaction này đã thực hiện giao dịch",
-                });
-            }
-        }
-
-        // api chứng thực
-        const pattern = process.env.SEPAY_API_KEY;
-        const authorizationAPI = req.headers.authorization;
-        const apiKey = authorizationAPI.split(" ")[1];
-
-        // kiểm tra xác thực api
-        if (pattern === apiKey) {
-            // Tạo lịch sử giao dịch
-            const newTransaction = await SePayTransaction.create({
-                _id: sePayWebhookData.id,
-                gateway: sePayWebhookData.gateway,
-                transactionDate: sePayWebhookData.transactionDate,
-                accountNumber: sePayWebhookData.accountNumber,
-                subAccount: sePayWebhookData.subAccount,
-                code: sePayWebhookData.code,
-                content: sePayWebhookData.content,
-                transferType: sePayWebhookData.transferType,
-                description: sePayWebhookData.description,
-                transferAmount: sePayWebhookData.transferAmount,
-                referenceCode: sePayWebhookData.referenceCode,
-            });
-
-            // const matchContent = sePayWebhookData.content.match(/NAP([a-f0-9]{24})/);
-            const matchContent = sePayWebhookData.content.match(/DH([a-zA-Z0-9]{6,24})/);
-            console.log("matchContent: ", matchContent);                
-            const idUser = matchContent[0].replace("DH", "");
-            console.log("idUser: ", idUser);                
-            const updatedUser = await Order.findOneAndUpdate(
-                // { _id: idUser },
-                { _id: idUser },
-                {
-                    $set: { TinhTrangThanhToan: "Đã Thanh Toán" },
-                    $push: {
-                        transactionHistory: {
-                            date: new Date(),
-                            amount: sePayWebhookData.transferAmount,
-                            type: "deposit",
-                            reference: sePayWebhookData.id,
-                        },
-                    },
-                },
-                { new: true, session }
-            );
-
-            if (!updatedUser) {
-                return res
-                    .status(404)
-                    .json({ message: "User account not found" });
-            }
-            await session.commitTransaction();
-
-            return res.status(200).json({
-                success: true,
-                TinhTrangThanhToan: updatedUser.TinhTrangThanhToan,
-                processedAt: new Date().toISOString(),
-                message: `Thanh toán thành công`,
-            });
-        }
-
-
-
         // Cập nhật số lượng tồn kho và số lượng bán cho từng sản phẩm
         for (let product of products) {
             const { _idSP, size, quantity } = product;
@@ -770,4 +780,4 @@ const createOrderThanhToanOnlineSePay = async (req, res) => {
     }
 };
 
-module.exports = { createOrder, createOrderThanhToanVNPay, createOrderThanhToanOnlineSePay };
+module.exports = { createOrder, createOrderThanhToanVNPay, createOrderThanhToanOnlineSePay, updateCongTienKhiNap };
