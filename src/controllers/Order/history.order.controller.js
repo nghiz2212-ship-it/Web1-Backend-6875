@@ -222,7 +222,7 @@ module.exports = {
 
     updateOrder: async (req, res) => {
         try {
-            let {TinhTrangDonHang, TinhTrangThanhToan, _id} = req.body
+            let {TinhTrangDonHang, TinhTrangThanhToan, _id, urlTTGH} = req.body
 
             // let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan})
 
@@ -357,7 +357,7 @@ module.exports = {
                     message: "Không thể sửa đơn thành Đã giao hàng mà lại Chưa Thanh Toán"
                 });
             } else {
-                let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan})                            
+                let update = await Order.findByIdAndUpdate({_id: _id}, {TinhTrangDonHang, TinhTrangThanhToan, urlTTGH})                            
                                
                 if(update) {                        
                     await sendOrderConfirmationEmail(findOrder.email);

@@ -18,6 +18,7 @@ const orderSchema = new mongoose.Schema(
         address: { type: String, required: true },
         phone: { type: String, required: true },
         note: { type: String, default: '' },
+        urlTTGH: { type: String, default: '' },
         products: [productSchema], // Mảng sản phẩm trong đơn hàng
         thanhTien: { type: Number, required: true }, // Tổng tiền của đơn hàng
         soTienCanThanhToan: { type: Number, required: true }, // Tổng tiền của đơn hàng
