@@ -524,10 +524,10 @@ const updateCongTienKhiNap = async (req, res) => {
                 referenceCode: sePayWebhookData.referenceCode,
             });
 
-            // const matchContent = sePayWebhookData.content.match(/NAP([a-f0-9]{24})/);
-            const matchContent = sePayWebhookData.content.match(/NAP([a-zA-Z0-9]{6,24})/);
+            // const matchContent = sePayWebhookData.content.match(/dh([a-f0-9]{24})/);
+            const matchContent = sePayWebhookData.content.match(/DH([a-zA-Z0-9]{6,30})/);
             console.log("matchContent: ", matchContent);                
-            const idUser = matchContent[0].replace("NAP", "");
+            const idUser = matchContent[0].replace("DH", "");
             console.log("idUser: ", idUser);                
             const updatedUser = await Order.findOneAndUpdate(
                 // { _id: idUser },
