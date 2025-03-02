@@ -81,7 +81,7 @@ const createOrder = async (req, res) => {
             }
         }       
 
-        const sendOrderConfirmationEmail = async (toEmail) => {
+        const sendOrderConfirmationEmail1 = async (toEmail) => {
             // Tạo nội dung email với bảng sản phẩm
             const mailOptions = {
                 from: 'Khắc Tú',
@@ -137,6 +137,123 @@ const createOrder = async (req, res) => {
                 });
             });
         };
+        const sendOrderConfirmationEmail = async (toEmail) => {
+            // Tạo nội dung email với bảng sản phẩm
+            const mailOptions = {
+                from: 'Khắc Tú',
+                to: toEmail,
+                subject: '🎉 Xác nhận đơn hàng của bạn! 🎉',
+                html: `
+                    <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h2 style="text-align: center; color: #2c3e50; font-size: 24px;">💖 Cảm ơn bạn đã đặt hàng! 💖</h2>
+                        <p style="color: #34495e; font-size: 18px;">Xin chào <span style="color: #e74c3c; font-weight: bold; font-style: italic;">${lastName} ${firstName}</span>,</p>
+                        <p style="font-size: 16px;">🎊 Đơn hàng của bạn đã được xác nhận! 🎊</p>
+                        
+                        <h3 style="color: #2c3e50; font-size: 20px; text-align: center;">🛒 Thông tin sản phẩm đã đặt hàng 🛍️</h3>                                        
+                        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; margin-bottom: 20px; background-color: #ffffff;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">📦 Tên sản phẩm</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">⚙️ Cấu hình</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">🔢 Số lượng</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">💰 Đơn giá</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">🧾 Tổng tiền</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${productsHtml}
+                            </tbody>
+                        </table>
+        
+                        <div style="background-color: #fff; padding: 15px; margin-bottom: 20px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);">
+                            <p><strong>📦 Tổng số lượng đặt:</strong> <span style="color: #2980b9;">${tongSoLuong}</span> sản phẩm</p>
+                            <p><strong>💰 Tổng tiền:</strong> <span style="color: #e74c3c;">${formatCurrency(thanhTien)}</span></p>
+                            <p><strong>🚚 Phí giao hàng:</strong> <span style="color: #2ecc71;">Miễn phí</span></p>
+                            <p><strong>🎁 Giảm giá:</strong> <span style="color: #e67e22;">-${formatCurrency(soTienGiamGia)}</span> (${giamGia}%)</p>
+                            <p><strong>💵 Số tiền cần thanh toán:</strong> <span style="color: #e74c3c; font-weight: bold;">${formatCurrency(soTienCanThanhToan)}</span></p>
+                        </div>
+            
+                        <p><strong>📞 Số điện thoại:</strong> ${phone}</p>
+                        <p><strong>🏠 Địa chỉ nhận hàng:</strong> <span style="color: #34495e; font-style: italic;">${address}</span></p>
+                        <br/>
+                                                               
+                        <p style="text-align: center; font-size: 16px;">📦 Bạn có thể theo dõi đơn hàng tại <a href="https://shopbandodientu.dokhactu.site" style="color: #3498db; text-decoration: none; font-weight: bold;">WebShop Khắc Tú</a></p>
+                    </div>
+                `
+            };
+        
+            return new Promise((resolve, reject) => {
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        console.log('📧 Email sent: ' + info.response);
+                        resolve();
+                    }
+                });
+            });
+        };
+        
+
+        const sendOrderNotificationToAdmin = async (adminEmail) => {
+            // Gửi email thông báo đơn hàng mới đến Admin
+            // Email chứa thông tin khách hàng và danh sách sản phẩm
+        
+            const mailOptions = {
+                from: 'Hệ Thống WebShop',
+                to: adminEmail,  // Email Admin nhận thông báo
+                subject: '🔔 Đơn hàng mới vừa được đặt',
+                html: `
+                    <div style="max-width: 600px; margin: 0 auto; font-family: Arial, sans-serif; background-color: #f9f9f9; padding: 20px; border-radius: 10px; box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);">
+                        <h2 style="text-align: center; color: #e74c3c; font-size: 24px;">📦 Đơn hàng mới</h2>
+                        <p style="font-size: 16px;">Một khách hàng vừa đặt hàng thành công trên hệ thống.</p>
+                        
+                        <h3 style="color: #2c3e50; font-size: 20px;">👤 Thông tin khách hàng</h3>
+                        <p><strong>Họ và tên:</strong> <span style="color: #2980b9;">${lastName} ${firstName}</span></p>
+                        <p><strong>Số điện thoại:</strong> <span style="color: #27ae60;">${phone}</span></p>
+                        <p><strong>Địa chỉ giao hàng:</strong> <span style="color: #34495e;">${address}</span></p>
+        
+                        <h3 style="color: #2c3e50; font-size: 20px;">🛒 Thông tin đơn hàng</h3>
+                        <table border="1" cellpadding="8" cellspacing="0" style="border-collapse: collapse; width: 100%; background-color: #ffffff;">
+                            <thead>
+                                <tr>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">Sản phẩm</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">Cấu hình</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">Số lượng</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">Đơn giá</th>
+                                    <th style="text-align: left; padding: 8px; background-color: #ecf0f1; color: #2c3e50;">Tổng</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                ${productsHtml} <!-- Danh sách sản phẩm -->
+                            </tbody>
+                        </table>
+        
+                        <div style="background-color: #fff; padding: 15px; border-radius: 8px; box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1); margin-bottom: 20px;">
+                            <p><strong>📌 Tổng số lượng:</strong> <span style="color: #2980b9;">${tongSoLuong}</span> sản phẩm</p>
+                            <p><strong>💰 Tổng tiền:</strong> <span style="color: #e74c3c;">${formatCurrency(thanhTien)}</span></p>
+                            <p><strong>🚚 Phí giao hàng:</strong> <span style="color: #2ecc71;">Miễn phí</span></p>
+                            <p><strong>🎁 Giảm giá:</strong> <span style="color: #e67e22;">-${formatCurrency(soTienGiamGia)}</span> (${giamGia}%)</p>
+                            <p><strong>💳 Số tiền cần thanh toán:</strong> <span style="color: #e74c3c;">${formatCurrency(soTienCanThanhToan)}</span></p>
+                        </div>
+        
+                        <p style="text-align: center; font-size: 16px;">Admin có thể quản lý đơn hàng tại <a href="https://shopbandodientu.dokhactu.site/admin" style="color: #3498db; text-decoration: none;">Trang Quản Lý</a></p>
+                    </div>
+                `
+            };
+        
+            return new Promise((resolve, reject) => {
+                transporter.sendMail(mailOptions, (error, info) => {
+                    if (error) {
+                        reject(error);
+                    } else {
+                        console.log('📧 Email thông báo đơn hàng đã gửi đến Admin: ' + info.response);
+                        resolve();
+                    }
+                });
+            });
+        };
+        
 
 
         
@@ -179,7 +296,11 @@ const createOrder = async (req, res) => {
         await newOrder.save();
 
         // Gửi email thông báo đặt hàng thành công
-        await sendOrderConfirmationEmail(email);       
+        await sendOrderConfirmationEmail(email);  
+        
+        // Gửi email thông báo đơn hàng mới đến Admin
+        const emailAdmin = 'dokhactu1822@gmail.com'
+        await sendOrderNotificationToAdmin(emailAdmin)
 
         // Cập nhật số lượng tồn kho và số lượng bán cho từng sản phẩm
         for (let product of products) {

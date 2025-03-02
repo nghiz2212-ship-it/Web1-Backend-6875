@@ -1,6 +1,7 @@
 const mongoose = require('mongoose');  // Đảm bảo bạn đã import mongoose
 const AccKH = require('../../model/AccKH');
 const HopQua = require('../../model/HopQua');
+const Order = require('../../model/Order');
 
 
 require('dotenv').config();
@@ -9,7 +10,7 @@ module.exports = {
 
     getAccKH: async (req, res) => {
         try {
-            const { page, limit, fullName } = req.query; 
+            const { page, limit, fullName, hangTV } = req.query; 
     
             // Chuyển đổi thành số
             const pageNumber = parseInt(page, 10);
@@ -34,18 +35,44 @@ module.exports = {
             
                 query.$and = searchKeywords;  // Dùng $and để tìm tất cả các từ khóa
             }
+            
+            
+            if (hangTV) {               
+                query.hangTV = hangTV
+            }
     
-            let accKH = await AccKH.find(query).populate("IdVoucher").skip(skip).limit(limitNumber)
+            let accKH = await AccKH.find(query).populate("IdVoucher").skip(skip).limit(limitNumber).lean();  // Trả về object thuần JavaScript
 
             const totalAccKH = await AccKH.countDocuments(query); // Đếm tổng số chức vụ
 
             const totalPages = Math.ceil(totalAccKH / limitNumber); // Tính số trang
                        
+            // **Thêm dữ liệu đơn hàng thành công**
+            const updatedAccKH = await Promise.all(
+                accKH.map(async (acc) => {
+                    const successfulOrders = await Order.find({
+                        TinhTrangDonHang: "Đã giao hàng",
+                        TinhTrangThanhToan: "Đã Thanh Toán",
+                        idKhachHang: acc._id
+                    })
+
+                    // **Làm tròn tổng doanh thu**
+                    const totalRevenue = successfulOrders.reduce((sum, order) => sum + order.soTienCanThanhToan, 0);
+                    const roundedRevenue = Math.round(totalRevenue);  // Làm tròn đến số nguyên gần nhất
+
+                    return {
+                        ...acc,
+                        soLuongDonThanhCong: successfulOrders.length,
+                        tongDoanhThuThanhCong: roundedRevenue.toLocaleString("vi-VN") + " VNĐ"
+                    };
+                })
+            );
+
             if(accKH) {
                 return res.status(200).json({
                     message: "Đã tìm ra acc kh",
                     errCode: 0,
-                    data: accKH,
+                    data: updatedAccKH,
                     totalAccKH,
                     totalPages,
                     currentPage: pageNumber,
@@ -68,14 +95,14 @@ module.exports = {
   
     updateAccKH: async (req, res) => {
         try {
-            const { id, fullName, IdVoucher, quayMayManCount } = req.body;
+            const { id, fullName, IdVoucher, quayMayManCount, hangTV } = req.body;
             console.log("id: ", id);
             console.log("fullname: ", fullName);
             console.log("IdVoucher: ", IdVoucher);                           
                 
             const updateResult = await AccKH.updateOne(
                 { _id: id }, // Điều kiện tìm kiếm tài liệu cần cập nhật
-                { IdVoucher, fullName, quayMayManCount }
+                { IdVoucher, fullName, quayMayManCount, hangTV }
             );
 
             if(updateResult) {
@@ -152,18 +179,30 @@ module.exports = {
                             
             let accKH = await AccKH.find({_id: id}).populate("IdVoucher")
                        
-            if(accKH) {
-                return res.status(200).json({
-                    message: "Đã tìm ra acc kh",
-                    errCode: 0,
-                    data: accKH,                    
-                })
-            } else {
-                return res.status(500).json({
-                    message: "Tìm thể loại thất bại!",
-                    errCode: -1,
-                })
+            if (!accKH) {
+                return res.status(404).json({
+                    message: "Không tìm thấy tài khoản khách hàng!",
+                    errCode: -1
+                });
             }
+    
+            // Tính tổng số đơn hàng thành công và tổng doanh thu
+            const successfulOrders = await Order.find({
+                idKhachHang: id,
+                TinhTrangDonHang: "Đã giao hàng",
+                TinhTrangThanhToan: "Đã Thanh Toán"
+            });
+    
+            const soLuongDonThanhCong = successfulOrders.length;
+            const tongDoanhThuThanhCong = Math.floor(successfulOrders.reduce((sum, order) => sum + order.soTienCanThanhToan, 0));
+    
+            return res.status(200).json({
+                message: "Đã tìm ra tài khoản khách hàng",
+                errCode: 0,
+                data: accKH,
+                soLuongDonThanhCong,
+                tongDoanhThuThanhCong
+            });
 
         } catch (error) {
             console.error(error);

@@ -4,6 +4,11 @@ const AccKH_Schema = new mongoose.Schema({
         email: { type: String },
         password: { type: String,  },
         fullName: { type: String, default: "Khắc tú"  },        
+        hangTV: { 
+            type: String, 
+            enum: ["Bạc", "Vàng", "Bạch Kim", "Kim Cương"], 
+            default: "Bạc" 
+        },      
         address: { type: String },        
         phone: { type: String },        
         gender: { type: Boolean, default: true},        
