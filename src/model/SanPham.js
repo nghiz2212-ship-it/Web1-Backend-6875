@@ -28,7 +28,8 @@ const SanPham_Schema = new mongoose.Schema(
         sizes: [sizesSchema],
         SoLuongTon: { type: Number, required: false, default: 0 },
         KhuyenMaiBatDau: { type: Date, required: false, default: Date.now },
-        KhuyenMaiKetThuc: { type: Date, required: false, default: Date.now }
+        KhuyenMaiKetThuc: { type: Date, required: false, default: Date.now },
+        isHot: { type: Boolean, default: false },
     },
     { 
         timestamps: true,   // createAt, updateAt

@@ -666,11 +666,23 @@ const updateCongTienKhiNap = async (req, res) => {
             // const matchContent = sePayWebhookData.content.match(/dh([a-f0-9]{24})/);
             const matchContent = sePayWebhookData.content.match(/DH([a-zA-Z0-9]{6,30})/);
             console.log("matchContent: ", matchContent);                
-            const idUser = matchContent[0].replace("DH", "");
-            console.log("idUser: ", idUser);                
+            const idOrder = matchContent[0].replace("DH", "");
+            console.log("idOrder: ", idOrder);           
+            
+            // Tìm đơn hàng trong database
+            const order = await Order.findById(idOrder).session(session);
+            if (!order) {
+                res.status(404).json({ message: "Không tìm thấy đơn hàng." });
+            }
+
+            // Kiểm tra số tiền thanh toán có khớp với số tiền cần thanh toán không
+            if (order.soTienCanThanhToan !== sePayWebhookData.transferAmount) {
+                res.status(404).json({ message: "Số tiền thanh toán không khớp" });
+            }
+            
             const updatedUser = await Order.findOneAndUpdate(
-                // { _id: idUser },
-                { _id: idUser },
+                // { _id: idOrder },
+                { _id: idOrder },
                 {
                     $set: { TinhTrangThanhToan: "Đã Thanh Toán" },
                     $push: {
