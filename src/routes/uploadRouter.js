@@ -1,8 +1,13 @@
 // routes/uploadRoutes.js
-const express = require('express');
-const path = require('path');
-const xlsx = require('xlsx');
-const { uploadFile, uploadFiles, uploadExcelFile } = require('../controllers/Upload/upload.controller');
+const express = require("express");
+const path = require("path");
+const xlsx = require("xlsx");
+const {
+    uploadFile,
+    uploadFiles,
+    uploadExcelFile,
+    deleteFile,
+} = require("../controllers/Upload/upload.controller");
 // import uploadFile, { uploadExcel, uploadExcelFile } from '../controllers/Upload/upload.controller';
 const router = express.Router();
 
@@ -11,9 +16,10 @@ const router = express.Router();
 // router.post('/multiple', uploadFile.uploadFiles);
 // router.post('/upload-excel', uploadExcelFile);
 
-router.post('/upload', uploadFile);
-router.post('/multiple', uploadFiles);
-router.post('/upload-excel', uploadExcelFile);
+router.post("/upload", uploadFile);
+router.post("/delete", deleteFile);
+router.post("/multiple", uploadFiles);
+router.post("/upload-excel", uploadExcelFile);
 // router.post('/upload-excel', uploadExcel, (req, res) => {
 //     if (!req.file) {
 //         return res.status(400).json({ message: 'Không tìm thấy file Excel để tải lên.' });
