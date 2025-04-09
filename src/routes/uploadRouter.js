@@ -7,6 +7,7 @@ const {
     uploadFiles,
     uploadExcelFile,
     deleteFile,
+    uploadFileMutiple,
 } = require("../controllers/Upload/upload.controller");
 // import uploadFile, { uploadExcel, uploadExcelFile } from '../controllers/Upload/upload.controller';
 const router = express.Router();
@@ -17,6 +18,7 @@ const router = express.Router();
 // router.post('/upload-excel', uploadExcelFile);
 
 router.post("/upload", uploadFile);
+router.post("/upload-mutiple", uploadFileMutiple);
 router.post("/delete", deleteFile);
 router.post("/multiple", uploadFiles);
 router.post("/upload-excel", uploadExcelFile);

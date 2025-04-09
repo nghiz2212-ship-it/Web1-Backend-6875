@@ -90,6 +90,46 @@ const uploadFile = (req, res) => {
     });
 };
 
+const uploadFileMutiple = (req, res) => {
+    upload.array("file", 10)(req, res, async (err) => {
+        if (err) {
+            return res.status(400).json({ message: err });
+        }
+
+        if (!req.file) {
+            return res.status(400).json({
+                message: "No file uploaded. Vui lòng chọn file để upload.",
+            });
+        }
+
+        try {
+            const results = [];
+            for (const file of req.files) {
+                const {
+                    path: filePath,
+                    originalname: fileName,
+                    mimetype,
+                } = file;
+
+                const uploaded = await uploadFileGoogle(
+                    filePath,
+                    fileName,
+                    mimetype
+                );
+
+                results.push({
+                    url: uploaded.webViewLink,
+                    type: "ImageChinh",
+                });
+            }
+
+            return res.json({ files: results });
+        } catch (error) {
+            return res.status(500).json({ message: "Lỗi khi upload file." });
+        }
+    });
+};
+
 // Endpoint upload nhiều ảnh
 const uploadFiles = (req, res) => {
     upload.array("files", 12)(req, res, (err) => {
@@ -216,4 +256,5 @@ module.exports = {
     uploadExcel,
     uploadExcelFile,
     deleteFile,
+    uploadFileMutiple,
 };
