@@ -21,6 +21,7 @@ const cron = require('node-cron');
 const moment = require('moment');
 const WebSocket = require('ws'); // Thêm thư viện WebSocket
 const Voucher = require('./model/Voucher');
+const cleanUploads = require('./utils/cleanUploads');
 
 require("dotenv").config();
 
@@ -80,7 +81,7 @@ const routes = [
     { path: '/api/comment', router: commentRouter },
     { path: '/api/hopqua', router: hopQuaRouter },
     { path: '/api/cauhoi', router: cauHoiRouter },
-    { path: '/api/lienhethuegame', router: thuegamelienhe },
+    // { path: '/api/lienhethuegame', router: thuegamelienhe },
 ];
   
 routes.forEach(route => app.use(route.path, route.router));
@@ -121,6 +122,9 @@ cron.schedule('*/10 * * * * *', async () => {
         console.error("Lỗi khi xóa phiếu giảm giá đã hết hạn:", error);
     }
 });
+
+setInterval(cleanUploads, 1 * 60 * 1000);
+
 
 app.get('/dokhactu', (req, res) => {
     setTimeout(function() {
