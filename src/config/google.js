@@ -9,12 +9,12 @@ required npm package: googleapis
 const { google } = require("googleapis");
 const fs = require("fs");
 
-const CLIENT_ID = "";
-const CLIENT_SECRET = "";
+const CLIENT_ID = "1030695102506-717usv0e32g6qsaba0305b1dc873homn.apps.googleusercontent.com";
+const CLIENT_SECRET = "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";
 const REDIRECT_URI = "https://developers.google.com/oauthplayground";
 
-const REFRESH_TOKEN = "";
-const folderId = ""; // ID thư mục đích
+const REFRESH_TOKEN = "1//046QlBqXc7DkkCgYIARAAGAQSNwF-L9IrbOOcAmdvY_HYm9jm8YfSepvrP_xVILR6vtl2kqpnKNfYrytJkW0TjrsG4MBfPH9Q1vs";
+const folderId = "11Q9LEkURIvPM5z0M_bUr0jSlgZBunwxU"; // ID thư mục đích
 
 const oauth2Client = new google.auth.OAuth2(
     CLIENT_ID,
