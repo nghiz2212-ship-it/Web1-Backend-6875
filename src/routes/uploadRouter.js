@@ -9,6 +9,7 @@ const {
     deleteFile,
     uploadFileMutiple,
 } = require("../controllers/Upload/upload.controller");
+const { uploadFile1, uploadFiles1, deleteFile1 } = require("../controllers/Upload/uploadCloud.controller");
 // import uploadFile, { uploadExcel, uploadExcelFile } from '../controllers/Upload/upload.controller';
 const router = express.Router();
 
@@ -17,43 +18,16 @@ const router = express.Router();
 // router.post('/multiple', uploadFile.uploadFiles);
 // router.post('/upload-excel', uploadExcelFile);
 
-router.post("/upload", uploadFile);
-router.post("/upload-mutiple", uploadFileMutiple);
-router.post("/delete", deleteFile);
-router.post("/multiple", uploadFiles);
-router.post("/upload-excel", uploadExcelFile);
-// router.post('/upload-excel', uploadExcel, (req, res) => {
-//     if (!req.file) {
-//         return res.status(400).json({ message: 'Không tìm thấy file Excel để tải lên.' });
-//     }
+// router.post("/upload", uploadFile);
+// router.post("/upload-mutiple", uploadFileMutiple);
+// router.post("/delete", deleteFile);
+// router.post("/multiple", uploadFiles);
+// router.post("/upload-excel", uploadExcelFile);
 
-//     // Đường dẫn file từ server
-//     const filePath = `/public/excel/${req.file.filename}`;
-//     console.log('File path:', filePath); // Kiểm tra đường dẫn file
+router.post("/upload", uploadFile1);
+router.post("/uploadSlider", uploadFiles1);
+router.post("/delete", deleteFile1);
 
-//     // Đọc file Excel và xử lý dữ liệu
-//     try {
-//         // Đọc file Excel đã được upload
-//         const workbook = xlsx.readFile(path.join(__dirname, '../../public/excel/', req.file.filename));
-//         console.log('workbook:', workbook);
-//         const sheetName = workbook.SheetNames[0];  // Lấy tên sheet đầu tiên
-//         const worksheet = workbook.Sheets[sheetName];
-//         const data = xlsx.utils.sheet_to_json(worksheet);  // Chuyển dữ liệu từ sheet thành JSON
 
-//         // Trả về dữ liệu và đường dẫn file
-//         res.status(200).json({
-//             success: true,
-//             message: 'File uploaded successfully!',
-//             filePath: filePath,  // Trả về đường dẫn file có thể truy cập qua HTTP
-//             data: data  // Trả về dữ liệu từ file Excel
-//         });
-
-//         // Xóa file sau khi xử lý (nếu không cần giữ lại)
-//         // fs.unlinkSync(path.join(__dirname, '../../public/excel/', req.file.filename));
-//     } catch (error) {
-//         console.error('Error processing Excel file:', error);
-//         return res.status(500).json({ message: 'Có lỗi khi xử lý file Excel', error: error.message });
-//     }
-// });
 
 module.exports = router;
