@@ -4,6 +4,7 @@ const Product = require('../../model/SanPham');  // Import model sản phẩm
 const nodemailer = require('nodemailer');
 const mongoose = require("mongoose");
 const SePayTransaction = require('../../model/SepayTransaction');
+const Cart = require('../../model/Cart');
 require('dotenv').config();
 
 const vnpay = new VNPay({
@@ -347,6 +348,8 @@ const createOrder = async (req, res) => {
             }
         }
 
+        await Cart.findOneAndDelete({ idKhachHang: idKhachHang });
+        
         // Trả về thông tin đơn hàng đã tạo
         return res.status(201).json({
             message: 'Đặt hàng thành công!',
@@ -593,6 +596,7 @@ const createOrderThanhToanVNPay = async (req, res) => {
                 console.log(`Product not found: ${productId}`);
             }
         }
+        
 
         // Trả về thông tin đơn hàng đã tạo
         return res.status(201).json({
