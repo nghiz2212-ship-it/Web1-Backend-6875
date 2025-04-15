@@ -1,5 +1,6 @@
 const Cart = require("../../model/Cart");
 const SanPham = require("../../model/SanPham");
+const Voucher = require("../../model/Voucher");
 
 const addToCart1 = async (req, res) => {
     try {
@@ -220,7 +221,17 @@ const updateCartItemQuantity = async (req, res) => {
         // Cập nhật lại tổng tiền
         const tongTienChuaGiam = cart.products.reduce((sum, item) => sum + (item.price * item.quantity), 0);
         cart.tongTienChuaGiam = tongTienChuaGiam;
-        cart.soTienCanThanhToan = tongTienChuaGiam - cart.soTienGiamGia;
+        // cart.soTienCanThanhToan = tongTienChuaGiam - cart.soTienGiamGia;
+
+        // Reset giảm giá nếu có
+        if (cart.voucherCode) {
+            cart.soTienGiamGia = 0;
+            cart.soTienCanThanhToan = tongTienChuaGiam;
+            cart.voucherCode = null;
+        } else {
+            cart.soTienCanThanhToan = tongTienChuaGiam - cart.soTienGiamGia;
+        }
+
 
         await cart.save();
 
@@ -259,7 +270,16 @@ const removeFromCart = async (req, res) => {
         }, 0);
 
         cart.tongTienChuaGiam = tongTienChuaGiam;
-        cart.soTienCanThanhToan = tongTienChuaGiam - cart.soTienGiamGia;
+        // cart.soTienCanThanhToan = tongTienChuaGiam - cart.soTienGiamGia;
+
+        // Reset giảm giá nếu có
+        if (cart.voucherCode) {
+            cart.soTienGiamGia = 0;
+            cart.soTienCanThanhToan = tongTienChuaGiam;
+            cart.voucherCode = null;
+        } else {
+            cart.soTienCanThanhToan = tongTienChuaGiam - cart.soTienGiamGia;
+        }
 
         await cart.save();
 
@@ -270,5 +290,46 @@ const removeFromCart = async (req, res) => {
     }
 };
 
+const applyVoucherToCart = async (req, res) => {
+    try {
+        const { voucherCode, idKhachHang } = req.body;
 
-module.exports = { addToCart, getCartByCustomerId, removeFromCart, updateCartItemQuantity };
+        const cart = await Cart.findOne({ idKhachHang: idKhachHang });
+        if (!cart) return res.status(404).json({ message: 'Không tìm thấy giỏ hàng' });
+
+        // Đã áp dụng mã rồi
+        if (cart.voucherCode) {
+            return res.status(400).json({ message: 'Bạn đã áp dụng mã giảm giá rồi không thể áp dụng lại!' });
+        }
+
+        const voucher = await Voucher.findOne({ code: voucherCode });
+        if (!voucher) return res.status(404).json({ message: 'Mã giảm giá không hợp lệ' });
+
+        const dieuKien = parseFloat(voucher.dieuKien);
+        const giamGia = parseFloat(voucher.giamGia);
+
+        if (cart.tongTienChuaGiam < dieuKien) {
+            return res.status(400).json({ message: `Đơn hàng phải từ ${dieuKien.toLocaleString()} đ để áp dụng mã` });
+        }
+
+        const soTienGiamGia = cart.tongTienChuaGiam * (giamGia / 100);
+        const soTienCanThanhToan = cart.tongTienChuaGiam - soTienGiamGia;
+
+        cart.soTienGiamGia = soTienGiamGia;
+        cart.soTienCanThanhToan = soTienCanThanhToan;
+        cart.voucherCode = voucherCode;
+        await cart.save();
+
+        res.status(200).json({
+            message: 'Áp dụng mã giảm giá thành công',
+            data: cart
+        });
+
+    } catch (error) {
+        console.error('Lỗi khi áp dụng mã:', error);
+        res.status(500).json({ message: 'Đã xảy ra lỗi' });
+    }
+};
+
+
+module.exports = { addToCart, getCartByCustomerId, removeFromCart, updateCartItemQuantity, applyVoucherToCart };

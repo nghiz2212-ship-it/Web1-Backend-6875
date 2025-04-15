@@ -15,6 +15,8 @@ const cartSchema = new mongoose.Schema({
     tongTienChuaGiam: { type: Number, default: 0 },
     soTienGiamGia: { type: Number, default: 0 },
     soTienCanThanhToan: { type: Number, default: 0 },
+    voucherCode: { type: String, default: null },
+
 }, {
     timestamps: true
 });
