@@ -35,13 +35,7 @@ connectDB();
 // Cài đặt CORS
 const allowedOrigins = [
     'http://localhost:3006', // Local development - admin
-    'http://localhost:3008', // Local development
-    'http://localhost:3009', // Local development
-    'https://bandodientu-admin.vercel.app',
-    'https://bandodientu-kt-trangchu.vercel.app',
-    'https://admin-dodientu.dokhactu.site',
-    'https://shopbandodientu.dokhactu.site',
-    'https://backend-bandodientu-node.dokhactu.site'
+    'http://localhost:3009', // Local development  - home  
 ];
 
 app.use(cors({
@@ -100,7 +94,7 @@ app.use("/api/upload", uploadRouter); // Đặt đường dẫn cho upload
 
 
 // xóa các voucher đã hết  -- sau 10s chạy 1 lần
-cron.schedule('*/10 * * * * *', async () => {
+cron.schedule('*/1000 * * * * *', async () => {
     try {
         const now = moment(); // Lấy thời gian hiện tại
         const expiredVouchers = await Voucher.find({

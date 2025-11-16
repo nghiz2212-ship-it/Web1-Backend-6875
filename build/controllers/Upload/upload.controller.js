@@ -106,7 +106,7 @@ var excelStorage = multer.diskStorage({
   }
 });
 
-// Middleware xử lý file Excel
+// ware xử lý file Excel
 var uploadExcel = multer({
   storage: excelStorage,
   fileFilter: function fileFilter(req, file, cb) {
