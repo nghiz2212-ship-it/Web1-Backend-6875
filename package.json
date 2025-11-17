@@ -4,6 +4,11 @@
   "main": "server.js",
   "description": "backend nodejs dokhactu",
   "scripts": {
+<<<<<<< HEAD
+=======
+    
+    
+>>>>>>> 3adf11dace8bc329f0e522f6d5b37477b532ceff
     "test": "echo \"Error: no test specified\" && exit 1",
     "start": "nodemon --exec ./node_modules/.bin/babel-node src/server.js",
     "build-src": "babel src -d build --copy-files",
