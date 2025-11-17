@@ -4,9 +4,11 @@
   "main": "server.js",
   "description": "backend nodejs dokhactu",
   "scripts": {
-    
-    
-    "start": "node build/server.js"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "start": "nodemon --exec ./node_modules/.bin/babel-node src/server.js",
+    "build-src": "babel src -d build --copy-files",
+    "build": "node build/server.js",
+    "prod": "pm2 start build/server.js"
   },
   "author": "",
   "license": "ISC",
