@@ -37,6 +37,8 @@ const allowedOrigins = [
     'http://localhost:3006', // Local development - admin
     'http://localhost:3009', // Local development  - home  
     'https://trang-chu-lyart.vercel.app', // trang chủz
+    'https://trangchu.nghiaht69.id.vn',
+    'https://trangadmin.nghiaht69.id.vn'
 ];
 
 app.use(cors({
