@@ -2,13 +2,7 @@
 const express = require("express");
 const path = require("path");
 const xlsx = require("xlsx");
-const {
-    uploadFile,
-    uploadFiles,
-    uploadExcelFile,
-    deleteFile,
-    uploadFileMutiple,
-} = require("../controllers/Upload/upload.controller");
+
 const { uploadFile1, uploadFiles1, deleteFile1 } = require("../controllers/Upload/uploadCloud.controller");
 // import uploadFile, { uploadExcel, uploadExcelFile } from '../controllers/Upload/upload.controller';
 const router = express.Router();
