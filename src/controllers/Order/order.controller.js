@@ -532,9 +532,9 @@ const createOrderThanhToanVNPay = async (req, res) => {
         // Gửi email thông báo đặt hàng thành công
         await sendOrderConfirmationEmail(email);
 
-        // Lấy returnUrl từ frontend gửi lên, nếu không có thì sử dụng mặc định
+        // Lấy returnUrl từ frontend gửi lên, nếu không có thì sử dụng mặc định 
         // const returnUrl = req.body?.returnUrl || 'https://backend-bandodientu-node.dokhactu.site/api/order/vnpay_return';
-        const returnUrl = req.body?.returnUrl || 'http://localhost:8088/api/order/vnpay_return';
+        const returnUrl = req.body?.returnUrl || 'https://backend.nghiaht69.id.vn/api/order/vnpay_return';
         console.log("newOrder._id.toString(): ", newOrder._id.toString());
         
         // Tạo URL thanh toán
