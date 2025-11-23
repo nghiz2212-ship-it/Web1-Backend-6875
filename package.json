@@ -1,14 +1,12 @@
 {
-  "name": "dokhactu",
+    "name": "dokhactu",
   "version": "1.0.0",
-  "main": "server.js",
+  "main": "build/server.js",
   "description": "backend nodejs dokhactu",
   "scripts": {
-   "test": "echo \"Error: no test specified\" && exit 1",
-    "start": "nodemon --exec ./node_modules/.bin/babel-node src/server.js",
-    "build-src": "babel src -d build --copy-files",
-    "build": "node build/server.js",
-    "prod": "pm2 start build/server.js"
+    "dev": "nodemon --exec babel-node src/server.js",
+    "build": "babel src -d build --copy-files",
+    "start": "node build/server.js"
   },
   "author": "",
   "license": "ISC",
