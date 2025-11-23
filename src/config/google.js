@@ -106,6 +106,10 @@ async function generatePublicUrl(id) {
     }
 }
 
-export { uploadFileGoogle, deleteFileGoogle, generatePublicUrl };
+module.exports = {
+    uploadFileGoogle,
+    deleteFileGoogle,
+    generatePublicUrl
+};
 
 // generatePublicUrl();
